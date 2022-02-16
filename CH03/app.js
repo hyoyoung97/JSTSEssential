@@ -1,40 +1,43 @@
-//`사용 => `${}`
-
+const container = document.getElementById('root');
 const ajax = new XMLHttpRequest();
 const content = document.createElement('div');
 const NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
 const CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
 
-//ajax로 화면에 뿌릴 데이터 받기
-ajax.open('GET', NEWS_URL, false);//false -> 비동기를 쓰지 않음()
-ajax.send();
-const newsFeed = JSON.parse(ajax.response);
+function getData(url) {
+  ajax.open('GET', url, false);
+  ajax.send();
 
+  return JSON.parse(ajax.response);
+}
+
+const newsFeed = getData(NEWS_URL);
 const ul = document.createElement('ul');
 
-//hashchange가 일어났을 때 (click 대신쓰임)
-window.addEventListener('hashchange', () => {
+window.addEventListener('hashchange', function() {
   const id = location.hash.substr(1);
 
-  ajax.open('GET', CONTENT_URL.replace('@id', id), false);
-  ajax.send();
-  const newsContent = JSON.parse(ajax.response);
+  const newsContent = getData(CONTENT_URL.replace('@id', id))
   const title = document.createElement('h1');
 
-  content.innerHTML = newsContent.title;
+  title.innerHTML = newsContent.title;
+
   content.appendChild(title);
 });
 
 for(let i = 0; i < 10; i++) {
-  const li = document.createElement('li');
-  const a = document.createElement('a');
+  const div = document.createElement('div');
 
-  a.href = '#';
-  a.innerHTML = `${newsFeed[i].title} (${newsFeed[i].comments_count})`;
+  div.innerHTML =  `
+    <li>
+      <a href="#${newsFeed[i].id}">
+        ${newsFeed[i].title} (${newsFeed[i].comments_count})
+      </a>
+    </li>
+  `;
 
-  li.appendChild(a);
-  ul.appendChild(li);
+  ul.appendChild(div.firstElementChild);
 }
 
-document.getElementById('root').appendChild(ul);
-document.getElementById('root').appendChild(content);
+container.appendChild(ul);
+container.appendChild(content);
